@@ -1,0 +1,13 @@
+{
+    "name": "samuelbednarcik/doctrine-elastic-apm-collector",
+    "description": "Elastic APM span collector for Doctrine",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Samuel Bednarcik",
+            "email": "bednarciks@gmail.com"
+        }
+    ],
+    "require": {}
+}
