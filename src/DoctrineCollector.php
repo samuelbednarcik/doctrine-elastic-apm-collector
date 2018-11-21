@@ -7,6 +7,12 @@ use SamuelBednarcik\ElasticAPMAgent\Events\Span;
 
 class DoctrineCollector implements CollectorInterface
 {
+    const NO_SUMMARY_QUERIES = [
+        '"START TRANSACTION"',
+        '"COMMIT"',
+        '"END TRANSACTION"'
+    ];
+
     /**
      * @var DoctrineAPMProfiler[]
      */
@@ -35,11 +41,19 @@ class DoctrineCollector implements CollectorInterface
                 $span->setType('DB');
                 $span->setDuration(round($query['executionMS'] * 1000, 3));
                 $span->setTimestamp(intval(round($query['start'] * 1000000)));
-                $span->setName($query['sql']);
-                $span->setContext([
-                    'params' => $query['params'],
-                    'types' => $query['types']
-                ]);
+
+                if (array_search($query['sql'], self::NO_SUMMARY_QUERIES) !== false) {
+                    $span->setName($query['sql']);
+                } else {
+                    $span->setName((new SQLSummary($query['sql']))->__toString());
+
+                    $span->setContext([
+                        'db' => [
+                            'type' => 'sql',
+                            'statement' => $query['sql']
+                        ]
+                    ]);
+                }
 
                 $spans[] = $span;
             }
